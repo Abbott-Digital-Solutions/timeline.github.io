@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizontal Flowing Bars with Chart.js</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f8f9fa;
+        }
+
+        canvas {
+            max-width: 800px;
+            max-height: 400px;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="horizontalFlowingBarsChart"></canvas>
+
+    <script>
+        // Helper function to generate random numbers
+        function rand(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Chart setup
+        const labels1 = ['Task A', 'Task B', 'Task C'];
+        const labels2 = ['Task D', 'Task E', 'Task F', 'Task G'];
+
+        const dataPoints1 = labels1.map(() => {
+            const start = rand(1, 335); // Generate a random day between 1 and 335
+            const end = start + rand(30, 240); // Add a random number of days (30 to 240) for the end date
+            return [start, end];
+        });
+
+        const dataPoints2 = labels2.map(() => {
+            const start = rand(1, 335); // Generate a random day between 1 and 335
+            const end = start + rand(30, 240); // Add a random number of days (30 to 240) for the end date
+            return [start, end];
+        });
+
+        const data = {
+            labels: ['Task A', 'Task B', 'Task C', 'Task D', 'Task E', 'Task F', 'Task G'],
+            datasets: [
+                {
+                    label: 'Dataset 1',
+                    data: dataPoints1,
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    datalabels: {
+                        formatter: function(value, context) {
+                            return labels1[context.dataIndex];
+                        },
+                        color: 'black'
+                    },
+                    barThickness: 10,
+                    categoryPercentage: 1.0,
+                    barPercentage: 1.0
+                },
+                {
+                    label: 'Dataset 2',
+                    data: dataPoints2,
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    datalabels: {
+                        formatter: function(value, context) {
+                            return labels2[context.dataIndex];
+                        },
+                        color: 'black'
+                    },
+                    barThickness: 10,
+                    categoryPercentage: 1.0,
+                    barPercentage: 1.0
+                },
+            ]
+        };
+
+        // Chart configuration
+        const config = {
+            type: 'bar',
+            data: data,
+            options: {
+                indexAxis: 'y', // Horizontal bar chart
+                responsive: true,
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom',
+                        title: {
+                            display: true,
+                            text: 'Month of the Year'
+                        },
+                        ticks: {
+                            callback: function(value, index, values) {
+                                // Convert day of the year to month number (resets after 12)
+                                let month = Math.ceil(value / 30);
+                                return month > 12 ? (month % 12 === 0 ? 12 : month % 12) : month;
+                            },
+                            stepSize: 30
+                        },
+                        grid: {
+                            // Draw gridlines at the start of each month
+                            tickColor: 'rgba(0,0,0,0.1)',
+                            color: function(context) {
+                                return context.tick.value % 30 === 0 ? 'rgba(0,0,0,0.25)' : 'rgba(0,0,0,0.1)';
+                            }
+                        }
+                    },
+                    y: {
+                        type: 'category',
+                        labels: ['Task A', 'Task B', 'Task C', 'Task D', 'Task E', 'Task F', 'Task G'],
+                        offset: true,
+                        position: 'left'
+                    }
+                },
+                animation: {
+                    duration: 1000,
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Chart.js Horizontal Floating Bar Chart with Grouped Datasets'
+                    },
+                    datalabels: {
+                        anchor: 'center',
+                        align: 'center',
+                        formatter: function(value, context) {
+                            if (context.datasetIndex === 0) {
+                                return labels1[context.dataIndex];
+                            } else {
+                                return labels2[context.dataIndex];
+                            }
+                        },
+                        color: 'white'
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        };
+
+        // Initialize chart on window load
+        window.onload = function() {
+            const ctx = document.getElementById('horizontalFlowingBarsChart').getContext('2d');
+            new Chart(ctx, config);
+        };
+    </script>
+</body>
+
+</html>
